@@ -6,6 +6,8 @@ ExecStart=/root/Syngenta-Hack25/.venv/bin/uvicorn src.main:app --host 0.0.0.0 --
 WorkingDirectory=/root/Syngenta-Hack25
 User=root
 Restart=always
+StandardOutput=syslog
+StandardError=syslog
 
 [Install]
 WantedBy=multi-user.target
