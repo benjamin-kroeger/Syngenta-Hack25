@@ -1,5 +1,6 @@
 import logging
 import asyncio
+import time
 from datetime import datetime, timedelta
 from readline import set_startup_hook
 import numpy as np
@@ -10,7 +11,7 @@ import pandas as pd
 from src.utils.indicator_calculation import calculate_drought_index
 
 
-def query_historical_archive(latitude: float, longitude: float, start_date: datetime, end_date: datetime, query: dict):
+async def query_historical_archive(latitude: float, longitude: float, start_date: datetime, end_date: datetime, query: dict):
     query = {
         "geometry": {
             "type": "Point",
@@ -25,12 +26,10 @@ def query_historical_archive(latitude: float, longitude: float, start_date: date
         ],
     }
     client = meteoblue_dataset_sdk.Client(apikey="9c579db416ae")  # ask for key
-    result = client.querySync(query)
+    result = await client.query(query)
     # result is a structured object containing timestamps and data
     return result
 
-longitude = 55
-latitude = 44
 
 def query_all_gdd(seeding_date: datetime, latitude: float, longitude: float, gdd_base: int, grow_time: int, number_past_years: int = 6):
     gdd_query = {"domain": "ERA5T", "gapFillDomain": None, "timeResolution": "daily",
@@ -70,50 +69,30 @@ def query_all_percipitation(seeding_date: datetime, latitude: float, longitude: 
     return percipitation_df
 
 
-def get_cummulative_rainfall(longitude:float, latitude:float):
-    cummulative_rainfall_data = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365), end_date=datetime.now() - timedelta(days=335),
-                                                         query={"domain": "ERA5T", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "daily", "codes": [ { "code": 61, "level": "sfc", "aggregation": "sum"} ]}
-                                                         )
-    #print(cummulative_rainfall_data)
-    return cummulative_rainfall_data
-def get_cumulative_Evapotranspiration(longitude:float, latitude:float):
-    cummulative_Evapotranspiration_data = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365), end_date=datetime.now() - timedelta(days=335),
-                                                                   query={"domain": "ERA5T", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "daily", "codes": [ { "code": 261, "level": "sfc", "aggregation": "sum"} ]}
-                                                                   )
-    #print(cummulative_Evapotranspiration_data)
-    return cummulative_Evapotranspiration_data
-
-def get_cumulative_Soil_Moisture(longitude:float, latitude:float):
-    cummulative_Soil_Moisture_data = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365), end_date=datetime.now() - timedelta(days=335),
-                                                              query={"domain": "ERA5T", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "daily", "codes": [ { "code": 144, "level": "0-7 cm down", "aggregation": "mean"} ]}
-                                                              )
-    #print(cummulative_Soil_Moisture_data)
-    return cummulative_Soil_Moisture_data
-def get_average_Temperature(longitude:float, latitude:float):
-    average_Temperature = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365), end_date=datetime.now() - timedelta(days=335),
-                                                   query={"domain": "ERA5T", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "daily", "codes": [ { "code": 11, "level": "2 m above gnd", "aggregation": "mean"} ]}
-                                                   )
-    #print(average_Temperature)
-    return average_Temperature
-
-def get_soil_Ph(longitude:float, latitude:float):
-    actual_soil_Ph = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365), end_date=datetime.now() - timedelta(days=335),
-                                                   query={"domain": "WISE30", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "static", "codes": [ { "code": 812, "level": "aggregated"} ]}
-                                                   )
-    #print(average_Temperature)
+def get_soil_Ph(longitude: float, latitude: float):
+    actual_soil_Ph = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365),
+                                              end_date=datetime.now() - timedelta(days=335),
+                                              query={"domain": "WISE30", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "static",
+                                                     "codes": [{"code": 812, "level": "aggregated"}]}
+                                              )
+    # print(average_Temperature)
     return actual_soil_Ph
 
-def get_actual_nitrogen(longitude:float, latitude:float):
-    actual_nitrogen = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365), end_date=datetime.now() - timedelta(days=335),
-                                              query={"domain": "WISE30", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "static", "codes": [ { "code": 817, "level": "aggregated"} ]}
 
-                                              )
-    #print(average_Temperature)
+def get_actual_nitrogen(longitude: float, latitude: float):
+    actual_nitrogen = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365),
+                                               end_date=datetime.now() - timedelta(days=335),
+                                               query={"domain": "WISE30", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "static",
+                                                      "codes": [{"code": 817, "level": "aggregated"}]}
+
+                                               )
+    # print(average_Temperature)
     return actual_nitrogen
 
-def combined_static_soil_data(longitude:float, latitude:float):
-    soil_Ph_data = get_soil_Ph(longitude,latitude)
-    nitrogen_data = get_actual_nitrogen(longitude,latitude)
+
+def combined_static_soil_data(longitude: float, latitude: float):
+    soil_Ph_data = get_soil_Ph(longitude, latitude)
+    nitrogen_data = get_actual_nitrogen(longitude, latitude)
     soil_Ph_values = np.array(soil_Ph_data.geometries[0].codes[0].timeIntervals[0].data)
     nitrogen_data = np.array(nitrogen_data.geometries[0].codes[0].timeIntervals[0].data)
 
@@ -123,13 +102,38 @@ def combined_static_soil_data(longitude:float, latitude:float):
     })
     return df
 
-def combine_drought_risk_data(longitude:float, latitude:float):
-    # Get data from individual API calls
-    rainfall_data = get_cummulative_rainfall(longitude,latitude)
-    evapotranspiration_data = get_cumulative_Evapotranspiration(longitude,latitude)
-    soil_moisture_data = get_cumulative_Soil_Moisture(longitude,latitude)
-    temperature_data = get_average_Temperature(longitude,latitude)
 
+async def combine_drought_risk_data(longitude: float, latitude: float):
+    # Get data from individual API calls
+    rainfall_data = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365),
+                                             end_date=datetime.now() - timedelta(days=335),
+                                             query={"domain": "ERA5T", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "daily",
+                                                    "codes": [{"code": 61, "level": "sfc", "aggregation": "sum"}]}
+                                             )
+    evapotranspiration_data = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365),
+                                                       end_date=datetime.now() - timedelta(days=335),
+                                                       query={"domain": "ERA5T", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "daily",
+                                                              "codes": [{"code": 261, "level": "sfc", "aggregation": "sum"}]}
+                                                       )
+    soil_moisture_data = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365),
+                                                  end_date=datetime.now() - timedelta(days=335),
+                                                  query={"domain": "ERA5T", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "daily",
+                                                         "codes": [{"code": 144, "level": "0-7 cm down", "aggregation": "mean"}]}
+                                                  )
+    temperature_data = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365),
+                                                end_date=datetime.now() - timedelta(days=335),
+                                                query={"domain": "ERA5T", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "daily",
+                                                       "codes": [{"code": 11, "level": "2 m above gnd", "aggregation": "mean"}]}
+                                                )
+
+    results = await asyncio.gather(
+        rainfall_data,
+        evapotranspiration_data,
+        soil_moisture_data,
+        temperature_data
+    )
+
+    rainfall_data, evapotranspiration_data, soil_moisture_data, temperature_data = results
 
     # Extract start and end date for the time series
     start_date = datetime.now() - timedelta(days=365)
@@ -142,7 +146,6 @@ def combine_drought_risk_data(longitude:float, latitude:float):
     soil_moisture_values = np.array(soil_moisture_data.geometries[0].codes[0].timeIntervals[0].data)
     temperature_values = np.array(temperature_data.geometries[0].codes[0].timeIntervals[0].data)
 
-
     df = pd.DataFrame({
         'Date': date_range,
         'Rainfall (mm)': rainfall_values,
@@ -153,25 +156,25 @@ def combine_drought_risk_data(longitude:float, latitude:float):
 
     # Apply the function to each row in the dataframe
     df[['Drought Index', 'Risk Level']] = df.apply(
-    lambda row: calculate_drought_index(row['Rainfall (mm)'],
-                                        row['Evapotranspiration (mm)'],
-                                        row['Soil Moisture (m³/m³)'],
-                                        row['Average Temperature (°C)']), axis=1, result_type='expand'
+        lambda row: calculate_drought_index(row['Rainfall (mm)'],
+                                            row['Evapotranspiration (mm)'],
+                                            row['Soil Moisture (m³/m³)'],
+                                            row['Average Temperature (°C)']), axis=1, result_type='expand'
     )
 
-    #df.to_csv("drought_risk_data.csv")
+    # df.to_csv("drought_risk_data.csv")
     return df
 
 
 if __name__ == "__main__":
-    #print(query_historical_archive(latitude=47, longitude=7.5, start_date=datetime.now() - timedelta(days=40),
-     #                              end_date=datetime.now() - timedelta(days=10),
-      #                             query={"domain": "ERA5T", "gapFillDomain": None, "timeResolution": "daily",
-       #                                   "codes": [
-        #                                      {"code": 730, "level": "2 m above gnd", "aggregation": "sum", "gddBase": 8, "gddLimit": 30}]}))
+    # print(query_historical_archive(latitude=47, longitude=7.5, start_date=datetime.now() - timedelta(days=40),
+    #                              end_date=datetime.now() - timedelta(days=10),
+    #                             query={"domain": "ERA5T", "gapFillDomain": None, "timeResolution": "daily",
+    #                                   "codes": [
+    #                                      {"code": 730, "level": "2 m above gnd", "aggregation": "sum", "gddBase": 8, "gddLimit": 30}]}))
 
-    #query_all_gdd(seeding_date=datetime.fromisoformat("2023-01-01"), longitude=7.5, latitude=47, gdd_base=8, grow_time=60)
+    # query_all_gdd(seeding_date=datetime.fromisoformat("2023-01-01"), longitude=7.5, latitude=47, gdd_base=8, grow_time=60)
 
-    combined_Date = combine_drought_risk_data(10,52)
-    combined_static_soil_data(78,21)
-    #print(get_cummulative_rainfall())
+    combined_Date = combine_drought_risk_data(10, 52)
+    combined_static_soil_data(78, 21)
+    # print(get_cummulative_rainfall())
