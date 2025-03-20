@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 
 from src.api_interfaces.forecast_api import reqeust_daily_temp_forecast
 
@@ -94,6 +95,58 @@ def calculate_drought_index(P, E, SM, T):
 
     return round(DI, 2), risk
 
+days_until_harvest = {
+    "Soybean": 120,
+    "Corn": 105,
+    "Cotton": 165,
+    "Rice": 140,
+    "Wheat": 135
+}
+
+reference_date = datetime.now() - timedelta(days=30)
+seeding_date = {
+    "Soybean": reference_date.strftime("%Y-%m-%d"),
+    "Corn": reference_date.strftime("%Y-%m-%d"),
+    "Cotton": reference_date.strftime("%Y-%m-%d"),
+    "Rice": reference_date.strftime("%Y-%m-%d"),
+    "Wheat": reference_date.strftime("%Y-%m-%d")
+}
+
+
+def date_for_calculated_yield_risk():
+    pass
+
+
+
+def calculate_yield_risk(GDD, GDD_opt, P, P_opt, pH, pH_opt, N, N_opt, w1=0.3, w2=0.3, w3=0.2, w4=0.2):
+    """
+    Calculate the yield risk for a given crop based on Growing Degree Days (GDD), precipitation, soil pH, and nitrogen levels.
+
+    :param GDD: Actual Growing Degree Days
+    :param GDD_opt: Optimal Growing Degree Days
+    :param P: Actual rainfall (mm)
+    :param P_opt: Optimal rainfall for growth (mm)
+    :param pH: Actual soil pH
+    :param pH_opt: Optimal soil pH
+    :param N: Actual available nitrogen in the soil (kg/ha)
+    :param N_opt: Optimal nitrogen availability (kg/ha)
+    :param w1: Weighting factor for GDD (default 0.3)
+    :param w2: Weighting factor for precipitation (default 0.3)
+    :param w3: Weighting factor for pH (default 0.2)
+    :param w4: Weighting factor for nitrogen (default 0.2)
+    :return: Yield risk value (scaled risk score)
+    """
+
+    yield_risk = (w1 * (GDD - GDD_opt) +
+                  w2 * (P - P_opt) +
+                  w3 * (pH - pH_opt) +
+                  w4 * (N - N_opt))
+
+    return round(yield_risk, 2)  # Return rounded risk value
+
+
+
+
 
 
 
@@ -128,5 +181,8 @@ if __name__ == "__main__":
     drought_index, risk_level = calculate_drought_index(P_value, E_value, SM_value, T_value)
 
     print(f"Drought Index: {drought_index}, Risk Level: {risk_level}")
+
+    # Example usage:
+    # calculate_yield_risk(GDD=2800, GDD_opt=2700, P=600, P_opt=700, pH=6.5, pH_opt=6.2, N=0.08, N_opt=0.077)
 
 

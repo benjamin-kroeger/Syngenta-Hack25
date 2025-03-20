@@ -64,10 +64,32 @@ def reqeust_daily_temp_forecast(longitude: float, latitude: float, date: datetim
     forecast_df["dailyValue"] = pd.to_numeric(forecast_df["dailyValue"])
     return forecast_df
 
+def reqeust_yield_risk_data(longitude: float, latitude: float, date: datetime, number_of_days:int=14):
+    """
+    Get the daily forecast for a given date and number of days.
+    """
+
+    assert date.date() >= datetime.now().date(), "The requested date must be in the future"
+
+    api_query_results = query_forecast_api_general(
+        longitude=longitude,
+        latitude=latitude,
+        start_date=date,
+        end_date=date + timedelta(days=number_of_days),
+        measurement_label=["TempAir_DailyMax (C)","Precip_DailySum (mm)"],
+        endpoint="/api/Forecast/ShortRangeForecastDaily"
+    )
+
+    forecast_df = pd.DataFrame(data=api_query_results)
+    forecast_df["dailyValue"] = pd.to_numeric(forecast_df["dailyValue"])
+    return forecast_df
+
+
 
 if __name__ == "__main__":
-    example_df = reqeust_daily_temp_forecast(longitude=75, latitude=25, date=datetime.today())
+    #example_df = reqeust_daily_temp_forecast(longitude=75, latitude=25, date=datetime.today())
+    example_df_yield_risk = reqeust_yield_risk_data(longitude=75, latitude=25, date=datetime.today())
 
 
-    example_df.to_csv("example2_df.csv",index=False)
+    example_df_yield_risk.to_csv("yiel_risk_data.csv",index=False)
 

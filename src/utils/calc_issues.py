@@ -15,6 +15,40 @@ biological_mapping = {
     "yield risk": "Yield Booster"
 }
 
+indicator_functions = {
+    "day_heat_stress": {"method": calculate_heat_stress,
+                        "label": "TempAir_DailyMax (C)",
+                        "thresholds":
+                            {
+                                "Soybean": {"crop_lim_opt": 32, "crop_lim_max": 45},
+                                "Corn": {"crop_lim_opt": 33, "crop_lim_max": 44},
+                                "Cotton": {"crop_lim_opt": 32, "crop_lim_max": 38},
+                                "Rice": {"crop_lim_opt": 32, "crop_lim_max": 38},
+                                "Wheat": {"crop_lim_opt": 25, "crop_lim_max": 32},
+                            }
+
+                        },
+    "nigh_heat_stress": {"method": calculate_nighttime_heat_stress,
+                         "label": "TempAir_DailyMin (C)",
+                         "thresholds":
+                             {
+                                 "Soybean": {"crop_lim_opt": 22, "crop_lim_max": 28},
+                                 "Corn": {"crop_lim_opt": 22, "crop_lim_max": 28},
+                                 "Cotton": {"crop_lim_opt": 20, "crop_lim_max": 25},
+                                 "Rice": {"crop_lim_opt": 22, "crop_lim_max": 28},
+                                 "Wheat": {"crop_lim_opt": 15, "crop_lim_max": 20}
+                             }
+
+                         },
+    "freeze_stress": {"method": calculate_frost_stress,
+                      "label": "TempAir_DailyMin (C)",
+                      "thresholds": {
+                          "Soybean": {"crop_lim_opt": 4, "crop_lim_max": -3},
+                          "Corn": {"crop_lim_opt": 4, "crop_lim_max": -3},
+                          "Cotton": {"crop_lim_opt": 4, "crop_lim_max": -3},
+                      }}
+}
+
 def filter_alerts(df):
 
     results = []
@@ -39,39 +73,7 @@ def filter_alerts(df):
 def calculate_stress_measures(forecast_data: pd.DataFrame) -> pd.DataFrame:
     # calculate heat stress
 
-    indicator_functions = {
-        "day_heat_stress": {"method": calculate_heat_stress,
-                            "label": "TempAir_DailyMax (C)",
-                            "thresholds":
-                                {
-                                    "Soybean": {"crop_lim_opt": 32, "crop_lim_max": 45},
-                                    "Corn": {"crop_lim_opt": 33, "crop_lim_max": 44},
-                                    "Cotton": {"crop_lim_opt": 32, "crop_lim_max": 38},
-                                    "Rice": {"crop_lim_opt": 32, "crop_lim_max": 38},
-                                    "Wheat": {"crop_lim_opt": 25, "crop_lim_max": 32},
-                                }
 
-                            },
-        "nigh_heat_stress": {"method": calculate_nighttime_heat_stress,
-                             "label": "TempAir_DailyMin (C)",
-                             "thresholds":
-                                 {
-                                     "Soybean": {"crop_lim_opt": 22, "crop_lim_max": 28},
-                                     "Corn": {"crop_lim_opt": 22, "crop_lim_max": 28},
-                                     "Cotton": {"crop_lim_opt": 20, "crop_lim_max": 25},
-                                     "Rice": {"crop_lim_opt": 22, "crop_lim_max": 28},
-                                     "Wheat": {"crop_lim_opt": 15, "crop_lim_max": 20}
-                                 }
-
-                             },
-        "freeze_stress": {"method": calculate_frost_stress,
-                          "label": "TempAir_DailyMin (C)",
-                          "thresholds": {
-                              "Soybean": {"crop_lim_opt": 4, "crop_lim_max": -3},
-                              "Corn": {"crop_lim_opt": 4, "crop_lim_max": -3},
-                              "Cotton": {"crop_lim_opt": 4, "crop_lim_max": -3},
-                          }}
-    }
 
     stress_results = defaultdict(dict)
 

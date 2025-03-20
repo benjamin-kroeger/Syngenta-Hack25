@@ -10,7 +10,7 @@ if __name__ == "__main__":
     df['date'] = pd.to_datetime(df['date'])  # Ensure date column is in datetime format
 
     # Compute triggers
-    trigger_df_v3 = check_trigger_v3(df)
+    #trigger_df_v3 = check_trigger_v3(df)
 
     # Save to CSV
-    trigger_df_v3.to_csv("trigger_table.csv", index=False)
+    #trigger_df_v3.to_csv("trigger_table.csv", index=False)
