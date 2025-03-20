@@ -56,7 +56,8 @@ async def get_all_alerts():
     drought_index = determine_drought_risk(drought_data)
 
     if drought_index <= 1:
-        pass
+        for crop in user_info["crops"]:
+            alerts.append({'crop': crop, 'measure': "drought_risk", 'biological_category': "Stress Buster"})
 
     return alerts.to_dict()
 
