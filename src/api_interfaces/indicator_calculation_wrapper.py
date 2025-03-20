@@ -1,11 +1,11 @@
 from datetime import timedelta, datetime
 import pandas as pd
-from src.api_interfaces.forecast_api import reqeust_daily_forecast
+from src.api_interfaces.forecast_api import reqeust_daily_temp_forecast
 from src.api_interfaces.indicator_calculation import calculate_heat_stress
 
 
 def return_indicator_dictionary():
-    df_daily_forecast = reqeust_daily_forecast(longitude=7, latitude=14, date=datetime.today() + timedelta(days=4), number_of_days=5)
+    df_daily_forecast = reqeust_daily_temp_forecast(longitude=7, latitude=14, date=datetime.today() + timedelta(days=4), number_of_days=5)
     #df_hourly_forecast = reqeust_hourly_forecast
     # Convert dailyValue to numeric (in case it's stored as a string)
     df_daily_forecast["dailyValue"] = pd.to_numeric(df_daily_forecast["dailyValue"])

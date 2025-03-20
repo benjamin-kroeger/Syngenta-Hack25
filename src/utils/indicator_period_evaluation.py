@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from src.utils.indicator_calculation import calculate_heat_stress
-from src.api_interfaces.forecast_api import reqeust_daily_forecast
+from src.api_interfaces.forecast_api import reqeust_daily_temp_forecast
 import pandas as pd
 
 def detect_heat_stress_risk(df, crop, threshold=6):

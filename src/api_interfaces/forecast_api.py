@@ -44,12 +44,12 @@ def query_forecast_api_general(
         response.raise_for_status()
 
 
-def reqeust_daily_forecast(longitude: float, latitude: float, date: datetime, number_of_days:int=14):
+def reqeust_daily_temp_forecast(longitude: float, latitude: float, date: datetime, number_of_days:int=14):
     """
     Get the daily forecast for a given date and number of days.
     """
 
-    assert date > datetime.now(), "The requested date must be in the future"
+    assert date.date() >= datetime.now().date(), "The requested date must be in the future"
 
     api_query_results = query_forecast_api_general(
         longitude=longitude,
@@ -61,14 +61,13 @@ def reqeust_daily_forecast(longitude: float, latitude: float, date: datetime, nu
     )
 
     forecast_df = pd.DataFrame(data=api_query_results)
+    forecast_df["dailyValue"] = pd.to_numeric(forecast_df["dailyValue"])
     return forecast_df
 
 
 if __name__ == "__main__":
-    example_df = reqeust_daily_forecast(longitude=7, latitude=14, date=datetime.today() + timedelta(days=4), number_of_days=5)
-    example_2_df = reqeust_daily_forecast(longitude=75, latitude=20, date=datetime.today() + timedelta(days=4), number_of_days=5)
+    example_df = reqeust_daily_temp_forecast(longitude=7, latitude=14, date=datetime.today())
 
 
     example_df.to_csv("example_df.csv",index=False)
-    example_2_df.to_csv("example_df.csv",index=False)
 

@@ -1,5 +1,5 @@
 
-from src.api_interfaces.forecast_api import reqeust_daily_forecast
+from src.api_interfaces.forecast_api import reqeust_daily_temp_forecast
 def calculate_heat_stress(tmax, crop):
     """
     Calculate the diurnal heat stress risk for a given crop based on daily maximum temperature.
