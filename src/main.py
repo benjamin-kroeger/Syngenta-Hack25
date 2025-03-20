@@ -148,6 +148,15 @@ async def get_data_for_temperature_curve(
         }
     }
 
+@app.get("/issues/get_drougth_index", status_code=status.HTTP_200_OK)
+async def get_drought_index():
+
+    user_info = get_user_info()
+    drought_data = await combine_drought_risk_data(user_info["longitude"],user_info["latitude"])
+    drought_index = determine_drought_risk(drought_data)
+    return drought_index
+
+
 
 
 
