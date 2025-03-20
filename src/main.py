@@ -1,6 +1,7 @@
 from datetime import datetime
 from idlelib.query import Query
 
+import pandas as pd
 from fastapi import FastAPI
 from fastapi import status
 
@@ -52,12 +53,20 @@ async def get_all_alerts():
     compute_issues = calculate_stress_measures(temperature_forecast)
 
     alerts = filter_alerts(compute_issues)
-    #drought_data = combine_drought_risk_data(user_info["longitude"],user_info["latitude"])
-    #drought_index = determine_drought_risk(drought_data)
 
-    #if drought_index <= 1:
-     #   for crop in user_info["crops"]:
-      #      alerts.append({'crop': crop, 'measure': "drought_risk", 'biological_category': "Stress Buster"})
+
+
+    drought_data = await combine_drought_risk_data(user_info["longitude"],user_info["latitude"])
+    drought_index = determine_drought_risk(drought_data)
+
+    if drought_index[0] <= 1:
+        drought_alerts = []
+        for crop in user_info["crops"]:
+            drought_alerts.append({'crop': crop, 'measure': "drought_risk", 'biological_category': "Stress Buster"})
+
+        drought_alert_df = pd.DataFrame(drought_alerts)
+
+    alerts = pd.concat([alerts, drought_alert_df]).reset_index(drop=True)
 
     return alerts.to_dict()
 

@@ -5,6 +5,7 @@ import pandas as pd
 from functools import partial
 from collections import defaultdict
 
+from src.utils.profile_creation import get_user_info
 
 biological_mapping = {
     "day_heat_stress": "Stress Buster",
@@ -21,36 +22,35 @@ indicator_functions = {
                         "label": "TempAir_DailyMax (C)",
                         "thresholds":
                             {
-                                "Soybean": {"crop_lim_opt": 32, "crop_lim_max": 45},
-                                "Corn": {"crop_lim_opt": 33, "crop_lim_max": 44},
-                                "Cotton": {"crop_lim_opt": 32, "crop_lim_max": 38},
-                                "Rice": {"crop_lim_opt": 32, "crop_lim_max": 38},
-                                "Wheat": {"crop_lim_opt": 25, "crop_lim_max": 32},
+                                "soybean": {"crop_lim_opt": 32, "crop_lim_max": 45},
+                                "corn": {"crop_lim_opt": 33, "crop_lim_max": 44},
+                                "cotton": {"crop_lim_opt": 32, "crop_lim_max": 38},
+                                "rice": {"crop_lim_opt": 32, "crop_lim_max": 38},
+                                "wheat": {"crop_lim_opt": 25, "crop_lim_max": 32},
                             }
 
                         },
-    "nigh_heat_stress": {"method": calculate_nighttime_heat_stress,
+    "night_heat_stress": {"method": calculate_nighttime_heat_stress,
                          "label": "TempAir_DailyMin (C)",
                          "thresholds":
                              {
-                                 "Soybean": {"crop_lim_opt": 22, "crop_lim_max": 28},
-                                 "Corn": {"crop_lim_opt": 22, "crop_lim_max": 28},
-                                 "Cotton": {"crop_lim_opt": 20, "crop_lim_max": 25},
-                                 "Rice": {"crop_lim_opt": 22, "crop_lim_max": 28},
-                                 "Wheat": {"crop_lim_opt": 15, "crop_lim_max": 20}
+                                 "soybean": {"crop_lim_opt": 22, "crop_lim_max": 28},
+                                 "corn": {"crop_lim_opt": 22, "crop_lim_max": 28},
+                                 "cotton": {"crop_lim_opt": 20, "crop_lim_max": 25},
+                                 "rice": {"crop_lim_opt": 22, "crop_lim_max": 28},
+                                 "wheat": {"crop_lim_opt": 15, "crop_lim_max": 20}
                              }
 
                          },
     "freeze_stress": {"method": calculate_frost_stress,
                       "label": "TempAir_DailyMin (C)",
                       "thresholds": {
-                          "Soybean": {"crop_lim_opt": 4, "crop_lim_max": -3},
-                          "Corn": {"crop_lim_opt": 4, "crop_lim_max": -3},
-                          "Cotton": {"crop_lim_opt": 4, "crop_lim_max": -3},
+                          "coybean": {"crop_lim_opt": 4, "crop_lim_max": -3},
+                          "corn": {"crop_lim_opt": 4, "crop_lim_max": -3},
+                          "cotton": {"crop_lim_opt": 4, "crop_lim_max": -3},
                       }}
 }
 def determine_drought_risk(df):
-    #df = pd.read_csv("../api_interfaces/drought_risk_data.csv")
 
     # Compute required values
     total_rainfall = df["Rainfall (mm)"].sum()
@@ -61,7 +61,7 @@ def determine_drought_risk(df):
 
     drought_index = calculate_drought_index(total_rainfall,total_evapotranspiration,avg_soil_moisture,avg_temperature)
 
-    print(drought_index)
+    return drought_index
 
 
 def filter_alerts(df):
@@ -88,7 +88,7 @@ def filter_alerts(df):
 
 def calculate_stress_measures(forecast_data: pd.DataFrame) -> pd.DataFrame:
     # calculate heat stress
-
+    user_info = get_user_info()
 
 
     stress_results = defaultdict(dict)
@@ -96,6 +96,9 @@ def calculate_stress_measures(forecast_data: pd.DataFrame) -> pd.DataFrame:
     # Apply the function for each crop
     for stress_measure, config in indicator_functions.items():
         for crop, limits in config["thresholds"].items():
+            if crop.lower() not in user_info["crops"]:
+                continue
+
             crop_daily_value_input = forecast_data.loc[forecast_data["measureLabel"] == config["label"], "dailyValue"]
             crop_stress_measure = partial(config["method"], **limits)
 
