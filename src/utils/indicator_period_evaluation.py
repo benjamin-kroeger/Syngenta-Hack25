@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 
-from src.api_interfaces.indicator_calculation import calculate_heat_stress
+from src.utils.indicator_calculation import calculate_heat_stress
 from src.api_interfaces.forecast_api import reqeust_daily_forecast
-
+import pandas as pd
 
 def detect_heat_stress_risk(df, crop, threshold=6):
     """
@@ -20,8 +20,11 @@ def detect_heat_stress_risk(df, crop, threshold=6):
     # ✅ Step 2: Rename the "dailyValue" column to "TMAX" for calculation
     df_filtered.rename(columns={"dailyValue": "TMAX"}, inplace=True)
 
+    # ✅ Step 3: Reset the index so it starts at 0, 1, 2, 3, ...
+    df_filtered.reset_index(drop=True, inplace=True)
+
     # ✅ Step 3: Apply heat stress calculation to each row
-    df_filtered["heat_stress"] = df_filtered["TMAX"].apply(lambda x: calculate_heat_stress(x, crop))
+    df_filtered["heat_stress"] = df_filtered["TMAX"].apply(lambda x: calculate_heat_stress(float(x), crop))
 
     # ✅ Step 4: Find indices where stress exceeds the threshold
     exceed_indices = df_filtered[df_filtered["heat_stress"] > threshold].index
@@ -38,7 +41,14 @@ def detect_heat_stress_risk(df, crop, threshold=6):
 
 if __name__ == "__main__":
     # Example usage
-    forecast_df = reqeust_daily_forecast(longitude=7, latitude=14, date=datetime.today() + timedelta(days=4), number_of_days=5)
+    #forecast_df = reqeust_daily_forecast(longitude=75, latitude=20, date=datetime.today() + timedelta(days=4), number_of_days=5)
+
+    # Load the CSV file directly into a DataFrame
+    forecast_df = pd.read_csv("example_df.csv")
+
+    # Convert dailyValue column to numeric
+    forecast_df["dailyValue"] = pd.to_numeric(forecast_df["dailyValue"], errors='coerce')
+
 
     if forecast_df is not None and not forecast_df.empty:
         # Detect heat stress risk for Soybean
