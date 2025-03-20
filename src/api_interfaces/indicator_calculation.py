@@ -105,6 +105,36 @@ def calculate_frost_stress(tmin, crop):
     else:
         return -10000
 
+def calculate_drought_index(P, E, SM, T):
+    """
+    Compute the Drought Index (DI) based on rainfall, evaporation, soil moisture, and temperature.
+
+    :param P: Cumulative rainfall (mm)
+    :param E: Cumulative evaporation (mm)
+    :param SM: Soil moisture content (mm or %)
+    :param T: Average temperature (°C)
+    :return: Drought Index (DI) and risk level
+    """
+
+    # Validate inputs to avoid division by zero
+    if T == 0:
+        raise ValueError("Temperature (T) cannot be zero to avoid division by zero.")
+
+    # Corrected Drought Index formula
+    DI = (P - E) + (SM / T)
+
+    # Interpret the Drought Index
+    if DI > 1:
+        risk = "No Risk"
+    elif DI == 1:
+        risk = "Medium Risk"
+    else:  # DI < 1
+        risk = "High Risk"
+
+    return round(DI, 2), risk
+
+
+
 
 
 
@@ -132,3 +162,15 @@ if __name__ == "__main__":
     frost_stress = calculate_frost_stress(tmin_value, crop_name)
 
     print(f"Frost stress for {crop_name} at {tmin_value}°C: {frost_stress}")
+
+    # Example usage
+    P_value = 100  # Example rainfall (mm)
+    E_value = 50   # Example evaporation (mm)
+    SM_value = 20  # Example soil moisture (%)
+    T_value = 25   # Example temperature (°C)
+
+    drought_index, risk_level = calculate_drought_index(P_value, E_value, SM_value, T_value)
+
+    print(f"Drought Index: {drought_index}, Risk Level: {risk_level}")
+
+
