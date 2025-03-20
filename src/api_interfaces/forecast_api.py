@@ -44,7 +44,7 @@ def query_forecast_api_general(
         response.raise_for_status()
 
 
-def reqeust_daily_forecast(longitude: float, latitude: float, date: datetime, number_of_days:int):
+def reqeust_daily_forecast(longitude: float, latitude: float, date: datetime, number_of_days:int=14):
     """
     Get the daily forecast for a given date and number of days.
     """
