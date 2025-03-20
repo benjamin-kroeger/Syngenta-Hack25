@@ -1,50 +1,50 @@
-from src.api_interfaces.indicator_calculation import calculate_heat_stress, calculate_frost_stress, calculate_nighttime_heat_stress
+from src.utils.indicator_calculation import calculate_heat_stress, calculate_frost_stress, calculate_nighttime_heat_stress
 
 import pandas as pd
 from functools import partial
+from collections import defaultdict
 
 
-def calculate_stress_measures(forecast_data:pd.DataFrame) -> pd.DataFrame:
-
+def calculate_stress_measures(forecast_data: pd.DataFrame) -> pd.DataFrame:
     # calculate heat stress
-
-    max_temp_entries = forecast_data.loc[forecast_data["measureLabel"] == "TempAir_DailyMax (C)"]
-    min_temp_entries = forecast_data.loc[forecast_data["measureLabel"] == "TempAir_DailyMin (C)"]
 
     # List of crops
     crops = ["Soybean", "Corn", "Cotton", "Rice", "Wheat"]
 
-    # Dictionary to store results
-    heat_stress_results = {}
-    frost_stress_results = {}
-    nighttime_heat_stress_results = {}
+    indicator_functions = {
+        "day_heat_stress": {"method": calculate_heat_stress,
+                            "label": "TempAir_DailyMax (C)"},
+        "nigh_heat_stress": {"method": calculate_nighttime_heat_stress,
+                             "label": "TempAir_DailyMin (C)"},
+        "freeze_stress": {"method": calculate_frost_stress,
+                          "label": "TempAir_DailyMin (C)"}
+    }
+
+    stress_results = defaultdict(dict)
 
     # Apply the function for each crop
-    for crop in crops:
-        heat_stress_func = partial(calculate_heat_stress, crop=crop)
-        frost_stress_func = partial(calculate_frost_stress, crop=crop)
-        nighttime_heat_stress_func = partial(calculate_nighttime_heat_stress, crop=crop)
+    for stress_measure,config in indicator_functions.items():
+        for crop in crops:
+            crop_daily_value_input = forecast_data.loc[forecast_data["measureLabel"] == config["label"],"dailyValue"]
+            crop_stress_measure = partial(config["method"], crop=crop)
 
-        heat_stress_results[crop] = max_temp_entries["dailyValue"].apply(heat_stress_func)
-        frost_stress_results[crop] = min_temp_entries["dailyValue"].apply(frost_stress_func)
-        nighttime_heat_stress_results[crop] = min_temp_entries["dailyValue"].apply(nighttime_heat_stress_func)
+            stress_results[stress_measure][crop] = crop_daily_value_input.apply(crop_stress_measure)
+
+    long_stress_results = []
+
+    for stress_measure,crop_stresses in stress_results.items():
+        for crop,stresses in crop_stresses.items():
+            for idx, stress_value in stresses.items():
+                long_stress_results.append({
+                    "date": forecast_data.iloc[idx]["date"],  # Assuming the index represents dates
+                    "crop": crop,
+                    "measure": stress_measure,
+                    "value": stress_value,
+                })
 
 
-
-
-
-
-
-
-
-
-    print("hi")
-
+    return pd.DataFrame(long_stress_results)
 
 
 if __name__ == "__main__":
-
-    calculate_stress_measures(pd.read_csv("example_df.csv"))
-
-
-
+    calculate_stress_measures(pd.read_csv("../api_interfaces/example_df.csv"))
