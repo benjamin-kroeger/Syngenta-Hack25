@@ -67,6 +67,12 @@ async def get_all_alerts():
         drought_alert_df = pd.DataFrame(drought_alerts)
 
     alerts = pd.concat([alerts, drought_alert_df]).reset_index(drop=True)
+    #include yiel_booster for example pruposes since formular is shit and GDD shows linear trend for last six years independent of period and region
+    yield_alerts = []
+    yield_alerts.append({'crop': "Wheat", 'measure': "yield_risk", 'biological_category': "Yield Booster"})
+    yield_alert_df = pd.DataFrame(yield_alerts)
+
+    alerts = pd.concat([alerts, yield_alert_df]).reset_index(drop=True)
 
     return alerts.to_dict()
 
