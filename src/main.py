@@ -39,7 +39,7 @@ async def get_all_alerts():
     return alerts.to_dict()
 
 
-@app.get("/weather/test", status_code=status.HTTP_200_OK)
+@app.get("/weather/temp_forecast", status_code=status.HTTP_200_OK)
 async def get_data_for_temperature_curve():
     user_info = get_user_info()
 
