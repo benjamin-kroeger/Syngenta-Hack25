@@ -3,10 +3,12 @@ from idlelib.query import Query
 
 from fastapi import FastAPI
 from fastapi import status
+
+from src.api_interfaces.soil_weather_archive_api import combine_drought_risk_data
 from src.models import User
 from src.utils.profile_creation import create_user, get_user_info
 from src.api_interfaces.forecast_api import reqeust_daily_temp_forecast
-from src.utils.calc_issues import calculate_stress_measures, filter_alerts, indicator_functions
+from src.utils.calc_issues import calculate_stress_measures, filter_alerts, indicator_functions, determine_drought_risk
 
 app = FastAPI()
 
@@ -35,6 +37,11 @@ async def get_all_alerts():
     compute_issues = calculate_stress_measures(temperature_forecast)
 
     alerts = filter_alerts(compute_issues)
+    drought_data = combine_drought_risk_data(user_info["longitude"],user_info["latitude"])
+    drought_index = determine_drought_risk(drought_data)
+
+    if drought_index <= 1:
+        pass
 
     return alerts.to_dict()
 
@@ -66,6 +73,9 @@ async def get_data_for_temperature_curve(
 ):
     """
     Fetch temperature data and thresholds for a given crop and issue.
+    valid crops("Soybean", "Corn "Cotton", "Rice", "Wheat"
+    valid issues("day_heat_stress", "nigh_heat_stress", "freeze_stress")
+
     """
     user_info = get_user_info()
 
@@ -112,3 +122,8 @@ async def get_data_for_temperature_curve(
             "max": crop_lim_max
         }
     }
+
+
+
+
+

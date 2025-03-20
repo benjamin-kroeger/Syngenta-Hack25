@@ -83,7 +83,7 @@ def calculate_drought_index(P, E, SM, T):
         raise ValueError("Temperature (T) cannot be zero to avoid division by zero.")
 
     # Corrected Drought Index formula
-    DI = (P - E) + (SM / T)
+    DI = (P - E + 0.5) + (SM / T)
 
     # Interpret the Drought Index
     if DI > 1:
@@ -113,8 +113,11 @@ seeding_date = {
 }
 
 
-def date_for_calculated_yield_risk():
-    pass
+def calculate_pH_factor(actual_pH, optimal_pH):
+    return actual_pH-optimal_pH
+
+def calculate_nitrogen_factor(actual_nitrogen, optimal_nitrogen):
+    return actual_nitrogen-optimal_nitrogen
 
 
 

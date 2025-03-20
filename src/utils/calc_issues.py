@@ -1,4 +1,5 @@
-from src.utils.indicator_calculation import calculate_heat_stress, calculate_frost_stress, calculate_nighttime_heat_stress
+from src.utils.indicator_calculation import calculate_heat_stress, calculate_frost_stress, \
+    calculate_nighttime_heat_stress, calculate_drought_index
 
 import pandas as pd
 from functools import partial
@@ -48,6 +49,20 @@ indicator_functions = {
                           "Cotton": {"crop_lim_opt": 4, "crop_lim_max": -3},
                       }}
 }
+def determine_drought_risk(df):
+    #df = pd.read_csv("../api_interfaces/drought_risk_data.csv")
+
+    # Compute required values
+    total_rainfall = df["Rainfall (mm)"].sum()
+    total_evapotranspiration = df["Evapotranspiration (mm)"].sum()
+    avg_soil_moisture = df["Soil Moisture (m³/m³)"].mean()
+    avg_temperature = df["Average Temperature (°C)"].mean()
+
+
+    drought_index = calculate_drought_index(total_rainfall,total_evapotranspiration,avg_soil_moisture,avg_temperature)
+
+    print(drought_index)
+
 
 def filter_alerts(df):
 
@@ -66,6 +81,7 @@ def filter_alerts(df):
         # Only keep rows where trigger is True
         if trigger:
             results.append({'crop': crop, 'measure': measure, 'biological_category': biological_category})
+
 
     return pd.DataFrame(results)
 
@@ -101,4 +117,5 @@ def calculate_stress_measures(forecast_data: pd.DataFrame) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    calculate_stress_measures(pd.read_csv("../api_interfaces/example_df.csv")).to_csv("issues_df.csv")
+    #calculate_stress_measures(pd.read_csv("../api_interfaces/example_df.csv")).to_csv("issues_df.csv")
+    determine_drought_risk(pd.read_csv("../api_interfaces/drought_risk_data.csv"))
