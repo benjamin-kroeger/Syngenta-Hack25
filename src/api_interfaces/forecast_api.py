@@ -56,7 +56,7 @@ def reqeust_daily_forecast(longitude: float, latitude: float, date: datetime, nu
         latitude=latitude,
         start_date=date,
         end_date=date + timedelta(days=number_of_days),
-        measurement_label=["TempAir_DailyMin (C)"],
+        measurement_label=["TempAir_DailyMin (C)","TempAir_DailyMax (C)"],
         endpoint="/api/Forecast/ShortRangeForecastDaily"
     )
 
@@ -65,4 +65,7 @@ def reqeust_daily_forecast(longitude: float, latitude: float, date: datetime, nu
 
 
 if __name__ == "__main__":
-    print(reqeust_daily_forecast(longitude=7, latitude=14, date=datetime.today() + timedelta(days=4), number_of_days=5))
+    example_df = reqeust_daily_forecast(longitude=7, latitude=14, date=datetime.today() + timedelta(days=4), number_of_days=5)
+
+
+    example_df.to_csv("example_df.csv",index=False)
