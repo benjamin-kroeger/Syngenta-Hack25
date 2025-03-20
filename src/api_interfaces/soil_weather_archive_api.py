@@ -1,7 +1,7 @@
 import logging
 import asyncio
 from datetime import datetime, timedelta
-#from readline import set_startup_hook
+from readline import set_startup_hook
 import numpy as np
 
 import meteoblue_dataset_sdk
@@ -34,7 +34,7 @@ latitude = 44
 
 def query_all_gdd(seeding_date: datetime, latitude: float, longitude: float, gdd_base: int, grow_time: int, number_past_years: int = 6):
     gdd_query = {"domain": "ERA5T", "gapFillDomain": None, "timeResolution": "daily",
-                 "codes": [{"code": 730, "level": "2 m above gnd", "aggregation": "sum", "gddBase": gdd_base, "gddLimit": 30}]}
+                 "codes": [{"code": 730, "level": "2 m above gnd", "aggregation": "sum", "gddBase": gdd_base, "gddLimit": 45}]}
 
     past_data = []
     for i in range(number_past_years):
@@ -46,7 +46,29 @@ def query_all_gdd(seeding_date: datetime, latitude: float, longitude: float, gdd
 
         past_data.append(np.array(past_gdd_data.geometries[0].codes[0].timeIntervals[0].data))
 
-    pd.DataFrame(past_data).to_csv(f"{gdd_base}_past_gdd.csv")
+    gdd_df = pd.DataFrame(past_data).T
+
+    return gdd_df
+
+
+def query_all_percipitation(seeding_date: datetime, latitude: float, longitude: float, grow_time: int, number_past_years: int = 6):
+    gdd_query = {"domain": "ERA5T", "gapFillDomain": "NEMSGLOBAL", "timeResolution": "daily",
+                 "codes": [{"code": 61, "level": "sfc", "aggregation": "sum"}]}
+
+    past_data = []
+    for i in range(number_past_years):
+        start_year = seeding_date.year - i - 1
+        start_date = seeding_date.replace(year=start_year)
+
+        end_date = start_date + timedelta(days=grow_time)
+        past_percipitation = query_historical_archive(latitude, longitude, start_date=start_date, end_date=end_date, query=gdd_query)
+
+        past_data.append(np.array(past_percipitation.geometries[0].codes[0].timeIntervals[0].data))
+
+    percipitation_df = pd.DataFrame(past_data).T
+
+    return percipitation_df
+
 
 def get_cummulative_rainfall(longitude:float, latitude:float):
     cummulative_rainfall_data = query_historical_archive(latitude=latitude, longitude=longitude, start_date=datetime.now() - timedelta(days=365), end_date=datetime.now() - timedelta(days=335),
@@ -139,6 +161,7 @@ def combine_drought_risk_data(longitude:float, latitude:float):
 
     #df.to_csv("drought_risk_data.csv")
     return df
+
 
 if __name__ == "__main__":
     #print(query_historical_archive(latitude=47, longitude=7.5, start_date=datetime.now() - timedelta(days=40),
