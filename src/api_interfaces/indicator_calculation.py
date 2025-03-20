@@ -1,3 +1,5 @@
+
+from src.api_interfaces.forecast_api import reqeust_daily_forecast
 def calculate_heat_stress(tmax, crop):
     """
     Calculate the diurnal heat stress risk for a given crop based on daily maximum temperature.
@@ -30,8 +32,12 @@ def calculate_heat_stress(tmax, crop):
         return round(9 * ((tmax - tmax_optimum) / (tmax_limit - tmax_optimum)), 2)  # Scaled stress
     else:
         return 9  # Maximum stress
+
+
+
 if __name__ == "__main__":
     # Example usage
+    df_daily_forecasts = req
     tmax = 36  # Example maximum temperature
     crop = "Soybean"  # Example crop
     heat_stress = calculate_heat_stress(tmax, crop)
