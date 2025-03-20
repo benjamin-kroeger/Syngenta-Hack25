@@ -30,10 +30,10 @@ def calculate_heat_stress(tmax, crop):
         return round(9 * ((tmax - tmax_optimum) / (tmax_limit - tmax_optimum)), 2)  # Scaled stress
     else:
         return 9  # Maximum stress
+if __name__ == "__main__":
+    # Example usage
+    tmax = 36  # Example maximum temperature
+    crop = "Soybean"  # Example crop
+    heat_stress = calculate_heat_stress(tmax, crop)
 
-# Example usage
-tmax = 36  # Example maximum temperature
-crop = "Soybean"  # Example crop
-heat_stress = calculate_heat_stress(tmax, crop)
-
-print(f"Diurnal heat stress for {crop} at {tmax}°C: {heat_stress}")
+    print(f"Diurnal heat stress for {crop} at {tmax}°C: {heat_stress}")
