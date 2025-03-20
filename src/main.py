@@ -7,8 +7,24 @@ from src.models import User
 from src.utils.profile_creation import create_user, get_user_info
 from src.api_interfaces.forecast_api import reqeust_daily_temp_forecast
 from src.utils.calc_issues import calculate_stress_measures, filter_alerts, indicator_functions
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:5501",
+    "http://127.0.0.1:5501",
+    "https://nicolas-kerber.de"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 
 @app.get("/")
@@ -19,7 +35,7 @@ async def get_all_alerts():
 @app.post("/users/create", status_code=status.HTTP_201_CREATED)
 async def create_user_enntry(user: User):
     create_user(user.name, user.longitude, user.latitude, user.crops)
-    return {"id", 1}
+    return {}
 
 
 @app.get("/alerts/getall", status_code=status.HTTP_200_OK)
@@ -35,7 +51,6 @@ async def get_all_alerts():
     compute_issues = calculate_stress_measures(temperature_forecast)
 
     alerts = filter_alerts(compute_issues)
-
     return alerts.to_dict()
 
 
