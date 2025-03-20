@@ -36,5 +36,22 @@ async def get_all_alerts():
 
     return "success"
 
+@app.get("/alerts/getall", status_code=status.HTTP_200_OK)
+async def get_data_for_temperature_curve():
+
+    user_info = get_user_info()
+
+    temperature_forecast = reqeust_daily_temp_forecast(
+        longitude=user_info["longitude"],
+        latitude=user_info["latitude"],
+        date=datetime.now(),
+
+    )
+
+
+    compute_issues = calculate_stress_measures(temperature_forecast)
+
+    return "success"
+
 
 
