@@ -66,8 +66,8 @@ def reqeust_daily_temp_forecast(longitude: float, latitude: float, date: datetim
 
 
 if __name__ == "__main__":
-    example_df = reqeust_daily_temp_forecast(longitude=7, latitude=14, date=datetime.today())
+    example_df = reqeust_daily_temp_forecast(longitude=25, latitude=75, date=datetime.today())
 
 
-    example_df.to_csv("example_df.csv",index=False)
+    example_df.to_csv("example2_df.csv",index=False)
 
