@@ -1,0 +1,13 @@
+latitude,longitude,date,measureLabel,dailyValue
+20.0,75.0,2025/03/24 00:00:00,TempAir_DailyMin (C),200.7
+20.0,75.0,2025/03/24 00:00:00,TempAir_DailyMax (C),370.11
+20.0,75.0,2025/03/25 00:00:00,TempAir_DailyMin (C),190.68
+20.0,75.0,2025/03/25 00:00:00,TempAir_DailyMax (C),37.17
+20.0,75.0,2025/03/26 00:00:00,TempAir_DailyMin (C),200.44
+20.0,75.0,2025/03/26 00:00:00,TempAir_DailyMax (C),200.9
+20.0,75.0,2025/03/27 00:00:00,TempAir_DailyMin (C),200.91
+20.0,75.0,2025/03/27 00:00:00,TempAir_DailyMax (C),37.46
+20.0,75.0,2025/03/28 00:00:00,TempAir_DailyMin (C),21.21
+20.0,75.0,2025/03/28 00:00:00,TempAir_DailyMax (C),37.75
+20.0,75.0,2025/03/29 00:00:00,TempAir_DailyMin (C),21.8
+20.0,75.0,2025/03/29 00:00:00,TempAir_DailyMax (C),37.96
