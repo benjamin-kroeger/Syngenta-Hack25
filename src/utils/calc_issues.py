@@ -12,9 +12,9 @@ biological_mapping = {
     "freeze_stress": "Stress Buster",
     "night_heat_stress": "Stress Buster",
     "drought_risk": "Stress Buster",
-    "nitrogen stress": "Nutrient Booster",
-    "phosphorus stress": "Nutrient Booster",
-    "yield risk": "Yield Booster"
+    "nitrogen_stress": "Nutrient Booster",
+    "phosphorus_stress": "Nutrient Booster",
+    "yield_risk": "Yield Booster"
 }
 
 indicator_functions = {
