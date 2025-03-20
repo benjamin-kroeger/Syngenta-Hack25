@@ -47,4 +47,6 @@ def calculate_stress_measures(forecast_data: pd.DataFrame) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    calculate_stress_measures(pd.read_csv("../api_interfaces/example_df.csv"))
+    df = calculate_stress_measures(pd.read_csv("../api_interfaces/example_df.csv"))
+    df.to_csv("issues_df.csv",index=False)
+    print()
