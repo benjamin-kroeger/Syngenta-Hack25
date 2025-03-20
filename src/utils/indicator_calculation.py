@@ -1,3 +1,4 @@
+import math
 from datetime import datetime, timedelta
 
 from src.api_interfaces.forecast_api import reqeust_daily_temp_forecast

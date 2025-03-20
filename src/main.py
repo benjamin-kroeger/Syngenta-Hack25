@@ -154,7 +154,7 @@ async def get_drought_index():
     user_info = get_user_info()
     drought_data = await combine_drought_risk_data(user_info["longitude"],user_info["latitude"])
     drought_index = determine_drought_risk(drought_data)
-    return drought_index
+    return drought_index[0]
 
 
 
