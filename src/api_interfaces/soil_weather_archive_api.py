@@ -1,7 +1,7 @@
 import logging
 import asyncio
 from datetime import datetime, timedelta
-from readline import set_startup_hook
+
 import numpy as np
 
 import meteoblue_dataset_sdk

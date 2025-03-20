@@ -9,8 +9,8 @@ from collections import defaultdict
 biological_mapping = {
     "day_heat_stress": "Stress Buster",
     "freeze_stress": "Stress Buster",
-    "nigh_heat_stress": "Stress Buster",
-    "drought risk": "Stress Buster",
+    "night_heat_stress": "Stress Buster",
+    "drought_risk": "Stress Buster",
     "nitrogen stress": "Nutrient Booster",
     "phosphorus stress": "Nutrient Booster",
     "yield risk": "Yield Booster"

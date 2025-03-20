@@ -52,12 +52,12 @@ async def get_all_alerts():
     compute_issues = calculate_stress_measures(temperature_forecast)
 
     alerts = filter_alerts(compute_issues)
-    drought_data = combine_drought_risk_data(user_info["longitude"],user_info["latitude"])
-    drought_index = determine_drought_risk(drought_data)
+    #drought_data = combine_drought_risk_data(user_info["longitude"],user_info["latitude"])
+    #drought_index = determine_drought_risk(drought_data)
 
-    if drought_index <= 1:
-        for crop in user_info["crops"]:
-            alerts.append({'crop': crop, 'measure': "drought_risk", 'biological_category': "Stress Buster"})
+    #if drought_index <= 1:
+     #   for crop in user_info["crops"]:
+      #      alerts.append({'crop': crop, 'measure': "drought_risk", 'biological_category': "Stress Buster"})
 
     return alerts.to_dict()
 
