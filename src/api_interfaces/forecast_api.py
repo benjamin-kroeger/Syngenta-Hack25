@@ -47,11 +47,6 @@ def query_forecast_api_general(
 def reqeust_daily_forecast(longitude: float, latitude: float, date: datetime, number_of_days:int):
     """
     Get the daily forecast for a given date and number of days.
-    :param longitude:
-    :param latitude:
-    :param date:
-    :param number_of_days:
-    :return:
     """
 
     assert date > datetime.now(), "The requested date must be in the future"
