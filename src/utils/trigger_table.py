@@ -25,7 +25,9 @@ def check_trigger_v3(df):
         # Get biological category, default to "error" if not found
         biological_category = biological_mapping.get(measure, "error")
 
-        results.append({'crop': crop, 'measure': measure, 'biological_category': biological_category, 'trigger': trigger})
+        # Only keep rows where trigger is True
+        if trigger:
+            results.append({'crop': crop, 'measure': measure, 'biological_category': biological_category})
 
     return pd.DataFrame(results)
 
