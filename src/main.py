@@ -164,6 +164,9 @@ async def get_drought_index():
     return drought_index[0]
 
 
+
+
+
 @app.post("/biological/apply", status_code=status.HTTP_201_CREATED)
 def apply_biological(biological_application: BiologicalApplication):
     user_info = get_user_info()
@@ -210,3 +213,23 @@ def calculate_all_benefits():
 
 
     return total_benefit
+
+@app.get("/profit/get_yield_increase_percentage", status_code=status.HTTP_200_OK)
+async def get_yield_increase(
+        biological: str,
+        crop: str ,
+        issue: str
+
+):
+    """
+    if biological is yiel_booster, then yield increase according to crop is returned
+    if biliogical is not "yiel_booster" then the respective value for the Stress buster according to issue / indicator is returned
+    valid crops("Soybean", "cotton", "rice", "wheat"
+    valid issues("day_heat_stress", "nigh_heat_stress", "freeze_stress")
+
+    """
+
+    if biological == "yield_booster":
+        return effectiveness_map_crop[crop]
+    else:
+        return effectiveness_map_cond[issue]
