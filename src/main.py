@@ -181,6 +181,13 @@ effectiveness_map_cond = {
     "drought_risk": 5.1
 }
 
+effectiveness_map_crop = {
+    "wheat":6,
+    "cotton":11,
+    "rice":9,
+
+}
+
 
 @app.get("/biological/profit", status_code=status.HTTP_200_OK)
 def calculate_all_benefits():
@@ -194,8 +201,11 @@ def calculate_all_benefits():
                                "stress_buster": 0}
 
     for application in used_biologicals:
-        total_benefit[application["crop"]][application["biological"]] += effectiveness_map_cond["issue"]
+        if application["biological"] == "stress_buster":
+            total_benefit[application["crop"]][application["biological"]] += effectiveness_map_cond[application["issue"]]
 
-    return {
+        if application["biological"] == "yield_booster":
+            total_benefit[application["crop"]][application["biological"]] += effectiveness_map_crop[application["crop"]]
 
-    }
+
+    return total_benefit
