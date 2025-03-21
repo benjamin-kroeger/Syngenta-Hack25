@@ -17,7 +17,8 @@ origins = [
     "http://localhost",
     "http://localhost:5501",
     "http://127.0.0.1:5501",
-    "https://nicolas-kerber.de"
+    "http://rebecca-kerber.de",
+
 ]
 
 app.add_middleware(
@@ -54,8 +55,6 @@ async def get_all_alerts():
 
     alerts = filter_alerts(compute_issues)
 
-
-
     drought_data = await combine_drought_risk_data(user_info["longitude"],user_info["latitude"])
     drought_index = determine_drought_risk(drought_data)
 
@@ -66,7 +65,7 @@ async def get_all_alerts():
 
         drought_alert_df = pd.DataFrame(drought_alerts)
 
-    alerts = pd.concat([alerts, drought_alert_df]).reset_index(drop=True)
+        alerts = pd.concat([alerts, drought_alert_df]).reset_index(drop=True)
     #include yiel_booster for example pruposes since formular is shit and GDD shows linear trend for last six years independent of period and region
     yield_alerts = []
     yield_alerts.append({'crop': "Wheat", 'measure': "yield_risk", 'biological_category': "Yield Booster"})
