@@ -216,10 +216,19 @@ def calculate_all_benefits():
 
 @app.get("/profit/get_yield_increase_percentage", status_code=status.HTTP_200_OK)
 async def get_yield_increase(
+        biological: str,
         crop: str ,
-        issue: str,
-        biological: str
+        issue: str
+
 ):
+    """
+    if biological is yiel_booster, then yield increase according to crop is returned
+    if biliogical is not "yiel_booster" then the respective value for the Stress buster according to issue / indicator is returned
+    valid crops("Soybean", "cotton", "rice", "wheat"
+    valid issues("day_heat_stress", "nigh_heat_stress", "freeze_stress")
+
+    """
+
     if biological == "yield_booster":
         return effectiveness_map_crop[crop]
     else:
