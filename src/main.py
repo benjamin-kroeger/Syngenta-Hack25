@@ -68,6 +68,12 @@ async def get_all_alerts():
         drought_alert_df = pd.DataFrame(drought_alerts)
 
         alerts = pd.concat([alerts, drought_alert_df]).reset_index(drop=True)
+    #include yiel_booster for example pruposes since formular is shit and GDD shows linear trend for last six years independent of period and region
+    yield_alerts = []
+    yield_alerts.append({'crop': "Wheat", 'measure': "yield_risk", 'biological_category': "Yield Booster"})
+    yield_alert_df = pd.DataFrame(yield_alerts)
+
+    alerts = pd.concat([alerts, yield_alert_df]).reset_index(drop=True)
 
     return alerts.to_dict()
 
@@ -146,6 +152,15 @@ async def get_data_for_temperature_curve(
             "max": crop_lim_max
         }
     }
+
+@app.get("/issues/get_drougth_index", status_code=status.HTTP_200_OK)
+async def get_drought_index():
+
+    user_info = get_user_info()
+    drought_data = await combine_drought_risk_data(user_info["longitude"],user_info["latitude"])
+    drought_index = determine_drought_risk(drought_data)
+    return drought_index[0]
+
 
 
 @app.post("/biological/apply", status_code=status.HTTP_201_CREATED)
