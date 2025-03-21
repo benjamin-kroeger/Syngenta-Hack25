@@ -217,6 +217,10 @@ def calculate_all_benefits():
 @app.get("/profit/get_yield_increase_percentage", status_code=status.HTTP_200_OK)
 async def get_yield_increase(
         crop: str ,
-        issue: str
+        issue: str,
+        biological: str
 ):
-    pass
+    if biological == "yield_booster":
+        return effectiveness_map_crop[crop]
+    else:
+        return effectiveness_map_cond[issue]
