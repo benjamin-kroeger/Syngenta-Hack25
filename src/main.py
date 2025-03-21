@@ -6,16 +6,18 @@ from fastapi import FastAPI
 from fastapi import status
 
 from src.api_interfaces.soil_weather_archive_api import combine_drought_risk_data
-from src.models import User
-from src.utils.profile_creation import create_user, get_user_info
+from src.models import User, BiologicalApplication
+from src.utils.profile_creation import write_user, get_user_info
 from src.api_interfaces.forecast_api import reqeust_daily_temp_forecast
 from src.utils.calc_issues import calculate_stress_measures, filter_alerts, indicator_functions, determine_drought_risk
 from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
 
 origins = [
     "http://localhost",
     "http://localhost:5501",
+     "http://localhost:5500",
     "http://127.0.0.1:5501",
     "http://rebecca-kerber.de",
 
@@ -37,7 +39,7 @@ async def get_all_alerts():
 
 @app.post("/users/create", status_code=status.HTTP_201_CREATED)
 async def create_user_enntry(user: User):
-    create_user(user.name, user.longitude, user.latitude, user.crops)
+    write_user(user.name, user.longitude, user.latitude, user.crops)
     return {}
 
 
@@ -55,7 +57,7 @@ async def get_all_alerts():
 
     alerts = filter_alerts(compute_issues)
 
-    drought_data = await combine_drought_risk_data(user_info["longitude"],user_info["latitude"])
+    drought_data = await combine_drought_risk_data(user_info["longitude"], user_info["latitude"])
     drought_index = determine_drought_risk(drought_data)
 
     if drought_index[0] <= 1:
@@ -88,11 +90,9 @@ async def get_data_for_temperature_curve():
     return {"date": min_temps["date"].to_list(), "max_temps": max_temps["dailyValue"].to_list(), "min_temps": min_temps["dailyValue"].to_list()}
 
 
-
-
 @app.get("/weather/testTimWithOptAndMax", status_code=status.HTTP_200_OK)
 async def get_data_for_temperature_curve(
-        crop: str ,
+        crop: str,
         issue: str
 ):
     """
@@ -148,6 +148,39 @@ async def get_data_for_temperature_curve(
     }
 
 
+@app.post("/biological/apply", status_code=status.HTTP_201_CREATED)
+def apply_biological(biological_application: BiologicalApplication):
+    user_info = get_user_info()
+
+    user_info["applied_biologicals"].append(biological_application.model_dump())
+
+    write_user(**user_info)
+
+    return {}
 
 
+effectiveness_map_cond = {
+    "day_heat_stress": 8,
+    "night_heat_stress": 5,
+    "freeze_stress": 5,
+    "drought_risk":5.1
+}
 
+
+@app.get("/biological/profit", status_code=status.HTTP_200_OK)
+def calculate_all_benefits():
+    user_info = get_user_info()
+    used_biologicals = user_info["applied_biologicals"]
+    user_crops = user_info["crops"]
+
+    total_benefit = {}
+    for crop in user_crops:
+        total_benefit[crop] = {"yield_booster": 0,
+                               "stress_buster": 0}
+
+    for application in used_biologicals:
+        total_benefit[application["crop"]][application["biological"]] += effectiveness_map_cond["issue"]
+
+    return {
+
+    }
