@@ -17,8 +17,9 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:5501",
-     "http://localhost:5500",
+    "http://localhost:5500",
     "http://127.0.0.1:5501",
+    "http://127.0.0.1:5500",
     "http://rebecca-kerber.de",
 
 ]
@@ -68,7 +69,7 @@ async def get_all_alerts():
         drought_alert_df = pd.DataFrame(drought_alerts)
 
         alerts = pd.concat([alerts, drought_alert_df]).reset_index(drop=True)
-    #include yiel_booster for example pruposes since formular is shit and GDD shows linear trend for last six years independent of period and region
+    # include yiel_booster for example pruposes since formular is shit and GDD shows linear trend for last six years independent of period and region
     yield_alerts = []
     yield_alerts.append({'crop': "Wheat", 'measure': "yield_risk", 'biological_category': "Yield Booster"})
     yield_alert_df = pd.DataFrame(yield_alerts)
@@ -153,14 +154,13 @@ async def get_data_for_temperature_curve(
         }
     }
 
+
 @app.get("/issues/get_drougth_index", status_code=status.HTTP_200_OK)
 async def get_drought_index():
-
     user_info = get_user_info()
-    drought_data = await combine_drought_risk_data(user_info["longitude"],user_info["latitude"])
+    drought_data = await combine_drought_risk_data(user_info["longitude"], user_info["latitude"])
     drought_index = determine_drought_risk(drought_data)
     return drought_index[0]
-
 
 
 @app.post("/biological/apply", status_code=status.HTTP_201_CREATED)
@@ -178,7 +178,7 @@ effectiveness_map_cond = {
     "day_heat_stress": 8,
     "night_heat_stress": 5,
     "freeze_stress": 5,
-    "drought_risk":5.1
+    "drought_risk": 5.1
 }
 
 
