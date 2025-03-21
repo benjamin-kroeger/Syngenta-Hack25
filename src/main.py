@@ -163,20 +163,8 @@ async def get_drought_index():
     drought_index = determine_drought_risk(drought_data)
     return drought_index[0]
 
-@app.get("/profit/get_yield_increase_percentage", status_code=status.HTTP_200_OK)
-async def get_yield_increase(
-        crop: str ,
-        issue: str
-):
-    """
-    Fetch temperature data and thresholds for a given crop and issue.
-    valid crops("Soybean", "Corn "Cotton", "Rice", "Wheat"
-    valid issues("day_heat_stress", "nigh_heat_stress", "freeze_stress")
 
-    user_info = get_user_info()
-    drought_data = await combine_drought_risk_data(user_info["longitude"],user_info["latitude"])
-    drought_index = determine_drought_risk(drought_data)
-    return drought_index[0]
+
 
 
 @app.post("/biological/apply", status_code=status.HTTP_201_CREATED)
@@ -225,3 +213,10 @@ def calculate_all_benefits():
 
 
     return total_benefit
+
+@app.get("/profit/get_yield_increase_percentage", status_code=status.HTTP_200_OK)
+async def get_yield_increase(
+        crop: str ,
+        issue: str
+):
+    pass
